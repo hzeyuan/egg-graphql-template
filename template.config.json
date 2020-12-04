@@ -1,0 +1,18 @@
+{
+    "project": "projectName",
+    "router": {
+        "graphql": [
+            {
+                "name": "graphql",
+                "url": "/graphql"
+            }
+        ],
+        "sample": [
+            {
+                "name": "sample",
+                "url": "/sample"
+            }
+        ]
+    },
+    "service": {}
+}
