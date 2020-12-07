@@ -1,18 +1,19 @@
 {
-    "project": "projectName",
-    "router": {
-        "graphql": [
-            {
-                "name": "graphql",
-                "url": "/graphql"
-            }
-        ],
-        "sample": [
-            {
-                "name": "sample",
-                "url": "/sample"
-            }
-        ]
-    },
-    "service": {}
+  "project": "projectName",
+  "router": {
+    "graphql": [
+      {
+        "name": "graphql",
+        "url": "/graphql"
+      }
+    ],
+    "sample": [
+      {
+        "methods": "get",
+        "name": "sample",
+        "url": "/sample"
+      }
+    ]
+  },
+  "service": {}
 }

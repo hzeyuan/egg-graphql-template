@@ -1,10 +1,10 @@
 // This file is created by egg-ts-helper@1.25.8
 // Do not modify this file!!!!!!!!!
 
-import 'egg';
-import ExportXauth from '../../../app/middleware/xauth';
+import "egg";
+import ExportXauth from "../../../app/middleware/xauth";
 
-declare module 'egg' {
+declare module "egg" {
   interface IMiddleware {
     xauth: typeof ExportXauth;
   }

@@ -1,7 +1,4 @@
-hcli
-====
-
-
+# hcli
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/hcli.svg)](https://npmjs.org/package/hcli)
@@ -9,11 +6,15 @@ hcli
 [![License](https://img.shields.io/npm/l/hcli.svg)](https://github.com/hzeyuan/hcli/blob/master/package.json)
 
 <!-- toc -->
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
+
 # Usage
+
 <!-- usage -->
+
 ```sh-session
 $ npm install -g hcli
 $ hcli COMMAND
@@ -25,8 +26,11 @@ USAGE
   $ hcli COMMAND
 ...
 ```
+
 <!-- usagestop -->
+
 # Commands
+
 <!-- commands -->
 
 <!-- commandsstop -->

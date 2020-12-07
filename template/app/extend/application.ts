@@ -8,7 +8,6 @@ const TYPE_GRAPHQL_SYMBOL = Symbol("Application#TypeGraphql");
 // const TYPE_AUTH_MANAGER = Symbol("Application#AuthManager");
 
 export default {
-
   getGraphQL(this: Application): GraphQL {
     if (!this[TYPE_GRAPHQL_SYMBOL]) {
       this[TYPE_GRAPHQL_SYMBOL] = new GraphQL(this);

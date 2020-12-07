@@ -1,8 +1,8 @@
-import { Application, Context } from 'egg';
+import { Application, Context } from "egg";
 // import { xerrors } from '../../config/xerror';
 
 interface Options {
-  whiteUrls?: [string] // 白名单过滤不需要校验权限
+  whiteUrls?: [string]; // 白名单过滤不需要校验权限
 }
 
 // const getToken = (ctx: Context, cookieKey: string): string | null => {
@@ -25,9 +25,7 @@ interface Options {
 // };
 
 export default (options: Options, _app: Application) => {
-
   return async function (ctx: Context, next: Function) {
-    
     await next();
   };
 };
