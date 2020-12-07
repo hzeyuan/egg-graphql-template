@@ -16,6 +16,7 @@
     "@oclif/dev-cli": "^1.25.1",
     "@types/node": "^10.17.48",
     "@types/prettier": "^2.1.5",
+    "egg-ts-helper": "^1.25.8",
     "prettier": "2.2.1",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.7"

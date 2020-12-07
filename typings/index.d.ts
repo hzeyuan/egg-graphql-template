@@ -1,5 +1,6 @@
+
 export interface Router {
-  name: string;
-  url: string;
-  methods: string;
+    name: string;
+    url: string;
+    methods: string;
 }
