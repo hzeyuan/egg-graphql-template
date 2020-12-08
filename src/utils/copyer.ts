@@ -32,33 +32,37 @@ export const copyDir = (
 ): void => {
   const tarDirpath = path.join(tarPath);
   if (!fs.existsSync(tarDirpath))
-    fs.mkdir(path.join(tarDirpath), (err: any) => {});
-  fs.readdir(srcPath, (err: NodeJS.ErrnoException | null, files: string[]) => {
-    if (err !== null) console.error(err);
-    files.forEach(function (filename: string) {
-      let filedir = path.join(srcPath, filename);
-      let filterFlag = filter.some((item) => item === filename);
-      if (!filterFlag) {
-        fs.stat(
-          filedir,
-          function (
-            errs: NodeJS.ErrnoException | null,
-            stats: { isFile: () => any }
-          ) {
-            let isFile = stats.isFile();
-            if (isFile) {
-              // 复制文件
-              const destPath = path.join(tarPath, filename);
-              fs.copyFile(filedir, destPath, (err: any) => {});
-            } else {
-              // 创建文件夹
-              let tarFiledir = path.join(tarPath, filename);
-              fs.mkdir(tarFiledir, (err: NodeJS.ErrnoException | null) => {});
-              copyDir(filedir, tarFiledir, filter); // 递归
-            }
-          }
-        );
+    fs.mkdir(path.join(tarDirpath), (err: any) => { });
+  const files: string[] = fs.readdirSync(srcPath);
+  // fs.readdir(srcPath, (err: NodeJS.ErrnoException | null, files: string[]) => {
+  //   if (err !== null) console.error(err);
+  files.forEach(function (filename: string) {
+    let filedir = path.join(srcPath, filename);
+    let filterFlag = filter.some((item) => item === filename);
+    if (!filterFlag) {
+      const stats = fs.statSync(filedir)
+      let isFile = stats.isFile();
+      if (isFile) {
+        // 复制文件
+        const destPath = path.join(tarPath, filename);
+        fs.copyFile(filedir, destPath, (err: any) => { });
+      } else {
+        // 创建文件夹
+        let tarFiledir = path.join(tarPath, filename);
+        fs.mkdir(tarFiledir, (err: NodeJS.ErrnoException | null) => { });
+        copyDir(filedir, tarFiledir, filter); // 递归
       }
-    });
+      // fs.stat(
+      //   filedir,
+      //   function (
+      //     errs: NodeJS.ErrnoException | null,
+      //     stats: { isFile: () => any }
+      //   ) {
+
+
+      //   }
+      // );
+    }
   });
+  // });
 };

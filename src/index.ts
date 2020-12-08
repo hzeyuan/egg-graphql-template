@@ -3,7 +3,7 @@ import { copyDir, addFileInDir } from "./utils/copyer";
 import { parseTempalteConfig } from "./utils/parse";
 import path = require("path");
 
-const copyTemplate = () => {
+const copyTemplate = async () => {
   const templateDir = path.join(__dirname, "../", "template");
   const sourceDir = path.join(__dirname, "../", "dist");
   //拷贝模板
@@ -28,8 +28,9 @@ class EggTypeGraphqlcli extends Command {
 
   async run() {
     const { flags, args } = this.parse(EggTypeGraphqlcli);
-    parseTempalteConfig();
     copyTemplate();
+    parseTempalteConfig();
+    // copyTemplate();
     // addFileInDir('ceshi.txt', __dirname, '123');
   }
 }

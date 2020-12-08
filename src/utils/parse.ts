@@ -6,22 +6,18 @@ import * as path from "path";
 import * as fs from "fs";
 import { Router } from "../../typings";
 import * as prettier from "prettier";
-import { type } from 'os';
-const root = path.join(__dirname, "../", "../");
-
-// const file2str = (file) => {
-//     return fs.readFileSync(file).toString();
-// }
+import { ROOT, TEMPLATE_FILE, DIST_ROUTER_FILE, TMP_ROUTER_FILE, DIST_CONTROLLER_FOLDER, TMP_SERVICE_FOLDER, DIST_SERVICE_FOLDER, DIST_TYPES_CONTROLLER_FOLDER, DIST_TYPES_SERVICE_FOLDER, TMP_TYPES_CONTROLLER_FOLDER, TMP_TYPES_SERVICE_FOLDER, TMP_CONTROLLER_FOLDER } from './common/vars';
 
 
+
+// 首字母大写
 const firstUpperCase = (str: string) => {
   return str.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase());
 }
 
 // 解析本地配置文件
 export const parseTempalteConfig = (config = "template.config.json") => {
-  const templateConfig = path.join(root, config);
-  console.log("root", root);
+  const templateConfig = path.join(ROOT, config);
   const dataStr = fs.readFileSync(templateConfig).toString();
   const templateData = JSON.parse(dataStr);
   console.log(templateData);
@@ -30,109 +26,72 @@ export const parseTempalteConfig = (config = "template.config.json") => {
   // const graphqlRouters: Router[] = templateData.router.graphql;
   //在router.ts中添加router;
   addSimpleRouters(sampleRouters)
-  //在controller中添加对应文件
-  addControllers(sampleRouters)
-  // // 在service中添加对应文件
-  addServices(sampleRouters);
-  // 在typings中生成对应的ts文件
+  // //在controller中添加对应文件
+  addControllersAndService(sampleRouters)
+  // // // 在service中添加对应文件
+  // addServices(sampleRouters);
+  // // 在typings中生成对应的ts文件
   gendts(sampleRouters);
 };
 
 export const addSimpleRouters = (sampleRouters: Router[]) => {
-  const routerFilePath = path.join(root, "template", "app", "router.ts");
-  let dataStr = fs.readFileSync(routerFilePath).toString();
+  let dataStr = fs.readFileSync(TMP_ROUTER_FILE).toString();
   sampleRouters.forEach((router) => {
-    console.log('datastr', dataStr)
     dataStr = render(dataStr, {
       nextRouter:
         `router.${router.methods}('${router.url}', controller.${router.name}.index);` +
         "\n// {{nextRouter}}",
     }, 'line');
   });
-  console.log('ttt', dataStr);
-  fs.writeFileSync(routerFilePath, prettier.format(dataStr));
+  fs.writeFileSync(DIST_ROUTER_FILE, prettier.format(dataStr, { parser: 'typescript' }));
 }
 
-export const addControllers = (sampleRouters: Router[]) => {
-  let t = `
-  import { Controller } from "egg";
 
-export default class {{name}}Controller extends Controller {
-  public async index() {
-    const { ctx } = this;
-    ctx.body = await ctx.service.test.sayHi("egg");
-  }
-}
-`
-  const folderPath = path.join(root, "template", "app", "controller");
+
+// 添加controller 和 service
+export const addControllersAndService = (sampleRouters: Router[]) => {
   sampleRouters.forEach((router) => {
-    const fileName = path.join(folderPath, `${router.name}.ts`);
-    t = render(t, { name: firstUpperCase(router.name) }, 'key')
-    fs.writeFile(fileName, prettier.format(t, { parser: 'typescript' }), () => { });
+    addControllers(router.name)
+    addServices(router.name)
   });
 }
 
-export const addServices = (sampleRouters: Router[]) => {
-  let t = `
-  import { Service } from "egg";
+export const addControllers = (name: string) => {
+  const tmpFileName = path.join(TMP_CONTROLLER_FOLDER, TEMPLATE_FILE);
+  const distFileName = path.join(DIST_CONTROLLER_FOLDER, `${name}.ts`);
+  let dataStr = fs.readFileSync(tmpFileName).toString();
+  dataStr = render(dataStr, { name: firstUpperCase(name) }, 'key')
+  fs.writeFile(distFileName, prettier.format(dataStr, { parser: 'typescript' }), () => {
+    console.log(`${distFileName} 创建成功`)
+  });
 
-
-export default class {{name}} extends Service {
-  public async sayHi(name: string) {
-    return name;
-  }
 }
 
-`
-  const folderPath = path.join(root, "template", "app", "service");
-  sampleRouters.forEach((router) => {
-    const fileName = path.join(folderPath, `${firstUpperCase(router.name)}.ts`);
-    t = render(t, { name: firstUpperCase(router.name) }, 'key')
-    fs.writeFile(fileName, prettier.format(t, { parser: 'typescript' }), () => {
-      console.log('写入完成')
-    })
+export const addServices = (name: string) => {
+  const tmpFileName = path.join(TMP_SERVICE_FOLDER, TEMPLATE_FILE);
+  const distFileName = path.join(DIST_SERVICE_FOLDER, `${name}.ts`);
+  let dataStr = fs.readFileSync(tmpFileName).toString();
+  dataStr = render(dataStr, { name: firstUpperCase(name) }, 'key')
+  fs.writeFile(distFileName, prettier.format(dataStr, { parser: 'typescript' }), () => {
+    console.log(`${distFileName} 创建成功`)
   });
+
 }
 
 export const gendts = (sampleRouters: Router[]) => {
   let tmp: string;
-  let Icontroller = `
-  import 'egg';
-import ExportAuth from '../../../app/controller/auth';
-// {{import}}
+  let Icontroller = fs.readFileSync(path.join(TMP_TYPES_CONTROLLER_FOLDER, TEMPLATE_FILE)).toString();
+  let IService = fs.readFileSync(path.join(TMP_TYPES_SERVICE_FOLDER, TEMPLATE_FILE)).toString();
 
-declare module 'egg' {
-  interface IController {
-    auth: ExportAuth;
-    // {{export}}
-  }
-}
-`
-  let IService = `
-  import 'egg';
-type AnyClass = new (...args: any[]) => any;
-type AnyFunc<T = any> = (...args: any[]) => T;
-type CanExportFunc = AnyFunc<Promise<any>> | AnyFunc<IterableIterator<any>>;
-type AutoInstanceType<T, U = T extends CanExportFunc ? T : T extends AnyFunc ? ReturnType<T> : T> = U extends AnyClass ? InstanceType<U> : U;
-import ExportAuth from '../../../app/service/Auth';
-// {{import}}
-
-declare module 'egg' {
-  interface IService {
-    auth: AutoInstanceType<typeof ExportAuth>;
-    // {{export}}
-  }
-}
-`
   const typings: { folder: string, template: string, fill: any }[] = [{
-    folder: 'controller',
+    folder: DIST_TYPES_CONTROLLER_FOLDER,
     template: Icontroller,
     fill: {
       import: `import Export{{name}} from '../../../app/controller/{{name}}';`,
       export: '{{name}}: Export{{name}};',
     }
   }, {
-    folder: 'service',
+    folder: DIST_TYPES_SERVICE_FOLDER,
     template: IService,
     fill: {
       import: `import Export{{name}} from '../../../app/service/{{name}}';`,
@@ -141,17 +100,15 @@ declare module 'egg' {
   }];
   typings.map(t => {
     tmp = t.template;
-    const folderPath = path.join(root, "template", "typings", 'app', t.folder);
-    const fileName = path.join(folderPath, `index.d.ts`);
+    const fileName = path.join(t.folder, `index.d.ts`);
     sampleRouters.forEach((router) => {
-
       tmp = render(tmp, {
         import: render(t.fill.import, { name: router.name, Name: firstUpperCase(router.name) }) + `\n // {{import}}`,
         export: render(t.fill.export, { name: router.name, Name: firstUpperCase(router.name) }) + `\n // {{export}}`
       }, 'line')
     });
     fs.writeFile(fileName, prettier.format(tmp, { parser: 'typescript' }), () => {
-      console.log('写入完成')
+      console.log('gendts 写入完成')
     })
   })
 }
