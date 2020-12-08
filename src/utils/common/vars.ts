@@ -26,7 +26,7 @@ export const DIST_SERVICE_FOLDER = path.join(DIST, "app", "service");
 export const DIST_TYPES_SERVICE_FOLDER = path.join(DIST, "typings", 'app', "service");
 export const DIST_TYPES_CONTROLLER_FOLDER = path.join(DIST, "typings", 'app', "controller");
 
-// exprot const TYPES_DIST_
+
 
 
 

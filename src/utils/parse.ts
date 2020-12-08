@@ -20,17 +20,10 @@ export const parseTempalteConfig = (config = "template.config.json") => {
   const templateConfig = path.join(ROOT, config);
   const dataStr = fs.readFileSync(templateConfig).toString();
   const templateData = JSON.parse(dataStr);
-  console.log(templateData);
-  // 对应的router配置
   const sampleRouters: Router[] = templateData.router.simple;
-  // const graphqlRouters: Router[] = templateData.router.graphql;
-  //在router.ts中添加router;
   addSimpleRouters(sampleRouters)
-  // //在controller中添加对应文件
   addControllersAndService(sampleRouters)
-  // // // 在service中添加对应文件
-  // addServices(sampleRouters);
-  // // 在typings中生成对应的ts文件
+
   gendts(sampleRouters);
 };
 
@@ -60,7 +53,7 @@ export const addControllers = (name: string) => {
   const tmpFileName = path.join(TMP_CONTROLLER_FOLDER, TEMPLATE_FILE);
   const distFileName = path.join(DIST_CONTROLLER_FOLDER, `${name}.ts`);
   let dataStr = fs.readFileSync(tmpFileName).toString();
-  dataStr = render(dataStr, { name: firstUpperCase(name) }, 'key')
+  dataStr = render(dataStr, { name, Name: firstUpperCase(name) }, 'key')
   fs.writeFile(distFileName, prettier.format(dataStr, { parser: 'typescript' }), () => {
     console.log(`${distFileName} 创建成功`)
   });
@@ -71,7 +64,7 @@ export const addServices = (name: string) => {
   const tmpFileName = path.join(TMP_SERVICE_FOLDER, TEMPLATE_FILE);
   const distFileName = path.join(DIST_SERVICE_FOLDER, `${name}.ts`);
   let dataStr = fs.readFileSync(tmpFileName).toString();
-  dataStr = render(dataStr, { name: firstUpperCase(name) }, 'key')
+  dataStr = render(dataStr, { Name: firstUpperCase(name) }, 'key')
   fs.writeFile(distFileName, prettier.format(dataStr, { parser: 'typescript' }), () => {
     console.log(`${distFileName} 创建成功`)
   });
@@ -87,14 +80,14 @@ export const gendts = (sampleRouters: Router[]) => {
     folder: DIST_TYPES_CONTROLLER_FOLDER,
     template: Icontroller,
     fill: {
-      import: `import Export{{name}} from '../../../app/controller/{{name}}';`,
-      export: '{{name}}: Export{{name}};',
+      import: `import Export{{Name}} from '../../../app/controller/{{name}}';`,
+      export: '{{name}}: Export{{Name}};',
     }
   }, {
     folder: DIST_TYPES_SERVICE_FOLDER,
     template: IService,
     fill: {
-      import: `import Export{{name}} from '../../../app/service/{{name}}';`,
+      import: `import Export{{Name}} from '../../../app/service/{{name}}';`,
       export: '{{name}}: AutoInstanceType<typeof Export{{Name}}>;'
     }
   }];
@@ -126,7 +119,6 @@ const render = (str: string, context: any, type = 'key') => {
       console.log('111', type)
       throw new Error('渲染失败');
   }
-  // console.log('pattern', pattern);
   return str.replace(
     pattern,
     (_, key: string) => context[key.trim()]

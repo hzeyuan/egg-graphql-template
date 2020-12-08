@@ -11,7 +11,6 @@ type AutoInstanceType<
 
 declare module "egg" {
   interface IService {
-    auth: AutoInstanceType<typeof ExportAuth>;
     // {{export}}
   }
 }

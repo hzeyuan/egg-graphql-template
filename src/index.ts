@@ -7,7 +7,7 @@ const copyTemplate = async () => {
   const templateDir = path.join(__dirname, "../", "template");
   const sourceDir = path.join(__dirname, "../", "dist");
   //拷贝模板
-  copyDir(templateDir, sourceDir, ["node_modules"]);
+  copyDir(templateDir, sourceDir, ["node_modules", 'template.ts']);
 };
 
 class EggTypeGraphqlcli extends Command {
