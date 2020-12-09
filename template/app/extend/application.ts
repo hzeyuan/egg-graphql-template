@@ -14,18 +14,4 @@ export default {
     }
     return this[TYPE_GRAPHQL_SYMBOL];
   },
-
-  // getSocialManager(this: Application): SocialManager {
-  //   if (!this[TYPE_SOCIAL_MANAGER]) {
-  //     this[TYPE_SOCIAL_MANAGER] = new SocialManager(this);
-  //   }
-  //   return this[TYPE_SOCIAL_MANAGER];
-  // },
-
-  // getAuthManager(this: Application): AuthManager{
-  //   if (!this[TYPE_AUTH_MANAGER]) {
-  //     this[TYPE_AUTH_MANAGER] = new AuthManager(this);
-  //   }
-  //   return this[TYPE_AUTH_MANAGER];
-  // }
 };

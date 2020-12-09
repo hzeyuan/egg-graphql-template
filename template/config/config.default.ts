@@ -7,9 +7,24 @@ export default (appInfo: EggAppInfo) => {
   // use for cookie sign key, should change to your own and keep security
   config.keys = appInfo.name + "_1606980525840_2191";
 
+  config.cors = {
+    credentials: true,
+    origin: '*',
+    allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTIONS',
+  };
+
+  config.graphql = {
+    router: '/v2/graphql',
+    graphiql: true,
+  };
   // add your egg config in here
   config.middleware = [];
-
+  config.security = {
+    // domainWhiteList: [ 'http://127.0.0.1:8000' ],
+    csrf: {
+      ignore: () => true,
+    },
+  };
   // add your special config in here
   const bizConfig = {
     sourceUrl: `https://github.com/eggjs/examples/tree/master/${appInfo.name}`,

@@ -22,9 +22,15 @@
     "clean": "ets clean"
   },
   "dependencies": {
+    "@prisma/client": "^2.13.0",
+    "apollo-server-koa": "^2.18.2",
+    "class-validator": "^0.12.2",
     "egg": "^2.6.1",
+    "egg-cors": "^2.2.3",
     "egg-graphql": "^2.8.0",
     "egg-scripts": "^2.6.0",
+    "lodash": "^4.17.20",
+    "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.1.0"
   },
   "devDependencies": {

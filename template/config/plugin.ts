@@ -6,6 +6,14 @@ const plugin: EggPlugin = {
   //   enable: true,
   //   package: 'egg-view-nunjucks',
   // },
+  cors: {
+    enable: true,
+    package: 'egg-cors'
+  },
+  graphql: {
+    enable: true,
+    package: 'egg-graphql',
+  },
 };
 
 export default plugin;
