@@ -1,6 +1,7 @@
 import { Command, flags } from "@oclif/command";
 import { copyDir, addFileInDir } from "./utils/copyer";
 import { parseTempalteConfig } from "./utils/parse";
+import { genSchema } from './utils/graphql2ts/gen-schema'
 import path = require("path");
 
 const copyTemplate = async () => {
@@ -28,10 +29,9 @@ class EggTypeGraphqlcli extends Command {
 
   async run() {
     const { flags, args } = this.parse(EggTypeGraphqlcli);
-    copyTemplate();
-    parseTempalteConfig();
     // copyTemplate();
-    // addFileInDir('ceshi.txt', __dirname, '123');
+    // parseTempalteConfig();
+    genSchema();
   }
 }
 
