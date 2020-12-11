@@ -13,10 +13,13 @@
     "graphql": "^15.4.0",
     "graphql-tools": "^7.0.2",
     "traverse": "^0.6.6",
-    "tslib": "^1.14.1"
+    "ts-morph": "^9.1.0",
+    "tslib": "^1.14.1",
+    "type-graphql": "^1.1.1"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1.25.1",
+    "@types/esprima": "^4.0.2",
     "@types/node": "^10.17.48",
     "@types/prettier": "^2.1.5",
     "@types/traverse": "^0.6.32",
