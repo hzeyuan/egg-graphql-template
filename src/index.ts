@@ -19,9 +19,9 @@ class EggTypeGraphqlcli extends Command {
     help: flags.help({ char: "h", description: "帮助信息" }),
     // 生成模板
     template: flags.string({ char: "t", description: "生成egg ts通用模板" }),
-    graphql: flags.string({
+    graphql: flags.boolean({
       char: "g",
-      description: "根据swagger生成garphql ts代码",
+      description: "根据graphql schema生成typeGraphql代码",
     }),
   };
 
@@ -31,7 +31,10 @@ class EggTypeGraphqlcli extends Command {
     const { flags, args } = this.parse(EggTypeGraphqlcli);
     // copyTemplate();
     // parseTempalteConfig();
-    genSchema();
+    if (flags.graphql) {
+      console.log('根据graphql schema生成typeGraphql代码')
+      genSchema();
+    }
   }
 }
 

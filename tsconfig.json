@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
-    "declaration": true,
+    "experimentalDecorators": true,
     "importHelpers": true,
     "module": "commonjs",
     "outDir": "lib",
     "rootDir": "src",
     "strict": true,
-    "target": "es2017"
+    "target": "es2017",
+    "emitDecoratorMetadata": true, 
+    "forceConsistentCasingInFileNames": true 
   },
   "exclude": ["node_modules*"]
 }

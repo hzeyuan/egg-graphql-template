@@ -3,6 +3,13 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+input QrcodeLoginStrategyInput {
+  allowExchangeUserInfoFromBrowser: Boolean
+  qrcodeExpiresAfter: Int
+  returnFullUserInfo: Boolean
+  ticketExpiresAfter: Int
+}
+
 type Movie {
   id: Int!
   title: String
@@ -11,3 +18,4 @@ type Movie {
 type Query {
   movie(id: Float): Movie
 }
+

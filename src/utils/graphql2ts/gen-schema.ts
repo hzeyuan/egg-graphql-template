@@ -1,12 +1,12 @@
 import { loadSchemaSync } from '@graphql-tools/load';
-import { GraphQLFieldMap, GraphQLObjectType, GraphQLSchema, ListTypeNode, NamedTypeNode, NonNullTypeNode, typeFromAST, valueFromAST, TypeInfo, TypeNode, isNamedType, isEqualType, isOutputType, isObjectType, getOperationRootType, isNonNullType, isListType, } from 'graphql';
+import { GraphQLFieldMap, GraphQLObjectType, GraphQLSchema, ListTypeNode, NamedTypeNode, NonNullTypeNode, typeFromAST, valueFromAST, TypeInfo, TypeNode, isNamedType, isEqualType, isOutputType, isObjectType, getOperationRootType, isNonNullType, isListType, isInputObjectType, GraphQLScalarType, GraphQLInputObjectType, isEnumType, } from 'graphql';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import * as path from 'path';
 import { isNonNullTypeNode, TypeMap } from 'graphql-tools';
 import { ROOT } from '../common/vars';
 import * as traverse from 'traverse';
-import { Project } from "ts-morph";
-const excludeElement = ['Int', 'Float', 'Boolean', 'String'];
+import { Project, SourceFile } from "ts-morph";
+const excludeElement = ['Int', 'Float', 'Boolean', 'String', 'Query', 'Mutation'];
 
 const graphql2jsType = (kind: string) => {
     switch (kind) {
@@ -25,7 +25,7 @@ const graphql2jsType = (kind: string) => {
 export const genSchema = () => {
     const project = new Project();
     // 加载gql文件
-    const graphQLSchema: GraphQLSchema = loadSchemaSync(path.join(ROOT, 'src', 'test.gql'), {  // load from a single schema file
+    const graphQLSchema: GraphQLSchema = loadSchemaSync(path.join(ROOT, 'src', 'schema.gql'), {  // load from a single schema file
         loaders: [new GraphQLFileLoader()]
     });
     const m: TypeMap = graphQLSchema.getTypeMap();
@@ -34,9 +34,12 @@ export const genSchema = () => {
         const namedType = m[key]
         const { name } = namedType
         console.log('className ==>', name);
-        const schemaFile = project.createSourceFile(`./test/${name}.ts`, `import { Field, Int, ObjectType, } from 'type-graphql';`);
-        if (isObjectType(namedType)) {
-            namedType as GraphQLObjectType;
+        const schemaFile = project.createSourceFile(`./test/${name}.ts`, `import { Field, Int, ObjectType,InputType,registerEnumType } from 'type-graphql';`);
+        console.log('isObjectType(namedType)', isObjectType(namedType));
+
+        if (isObjectType(namedType) || isInputObjectType(namedType)) {
+            const decoratorName = isObjectType(namedType) ? 'ObjectType' : isInputObjectType(namedType) ? 'InputType' : ''
+            namedType as GraphQLObjectType | GraphQLInputObjectType;
             const fields = namedType.getFields();
             const fieldsKey = Object.keys(fields)
             /**
@@ -49,7 +52,7 @@ export const genSchema = () => {
                 name,
                 properties: fieldsKey.map(k => ({ name: k, }))
             });
-            aClass.addDecorator({ name: 'ObjectType' }).setIsDecoratorFactory(true);
+            aClass.setIsExported(true).addDecorator({ name: decoratorName }).setIsDecoratorFactory(true);
             /**
              *  为类添加属性
              * class Movie{
@@ -79,6 +82,19 @@ export const genSchema = () => {
                     arguments: args(),
                 })
             })
+        } else if (isEnumType(namedType)) {
+            console.log('enum类型')
+            schemaFile.addEnum({
+                name, members: namedType.getValues()
+            }).setIsExported(true);
+            // schemaFile.addFunction({
+            //     name: 'registerEnumType',
+            //     parameters: [{ name: 'SortByEnum' }, {
+            //         name: `{
+            //             name: '${name}',
+            //           }` , type: 'object'
+            //     }]
+            // })
         }
 
     })
