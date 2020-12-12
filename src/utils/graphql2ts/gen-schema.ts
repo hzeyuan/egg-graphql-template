@@ -1,89 +1,86 @@
 import { loadSchemaSync } from '@graphql-tools/load';
-import { GraphQLFieldMap, GraphQLObjectType, GraphQLSchema, ListTypeNode, NamedTypeNode, NonNullTypeNode } from 'graphql';
+import { GraphQLFieldMap, GraphQLObjectType, GraphQLSchema, ListTypeNode, NamedTypeNode, NonNullTypeNode, typeFromAST, valueFromAST, TypeInfo, TypeNode, isNamedType, isEqualType, isOutputType, isObjectType, getOperationRootType, isNonNullType, isListType, } from 'graphql';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import * as path from 'path';
-import { TypeMap } from 'graphql-tools';
+import { isNonNullTypeNode, TypeMap } from 'graphql-tools';
 import { ROOT } from '../common/vars';
 import * as traverse from 'traverse';
-import { ClassDeclaration, Project, PropertyDeclaration, StructureKind, SyntaxKind, WriterFunction, Decorator } from "ts-morph";
+import { Project } from "ts-morph";
 const excludeElement = ['Int', 'Float', 'Boolean', 'String'];
 
-const types2js = (kind: string) => {
+const graphql2jsType = (kind: string) => {
     switch (kind) {
-        case 'Int' || 'Float':
+        case 'Int': case 'Float': case 'Int!': case 'Float!':
             return 'number'
-        case 'String':
+        case 'String': case 'String!':
             return 'string'
         default:
             return kind;
     }
 }
 
-export class genTypeGraphql {
 
-}
 
 
 export const genSchema = () => {
+    const project = new Project();
     // 加载gql文件
-    const schema: GraphQLSchema = loadSchemaSync(path.join(ROOT, 'src', 'test.gql'), {  // load from a single schema file
+    const graphQLSchema: GraphQLSchema = loadSchemaSync(path.join(ROOT, 'src', 'test.gql'), {  // load from a single schema file
         loaders: [new GraphQLFileLoader()]
     });
-    const m: TypeMap = schema.getTypeMap();
-    let schemaFile;
-    let className: string;
-    let aClass;
+    const m: TypeMap = graphQLSchema.getTypeMap();
     const typeKeys = Object.keys(m).filter((x) => !(x.startsWith('__') || excludeElement.indexOf(x) !== -1))
-    const project = new Project();
     typeKeys.forEach((key) => {
-        className = m[key].astNode?.name.value!;
-        schemaFile = project.createSourceFile(`./test/${className}.ts`, `import { Field, Int, ObjectType, } from 'type-graphql';`);
-        const t = m[key] as GraphQLObjectType;
-        const fields = t.getFields();
-        const fieldsKey = Object.keys(fields)
-        aClass = schemaFile.addClass({
-            name: className,
-        });
-        aClass.addDecorator({ name: 'ObjectType' }).setIsDecoratorFactory(true)
-        const PropertyDeclaration = aClass.addProperties(fieldsKey.map(k => {
-            return {
-                name: k,
-            }
-        }));
-        PropertyDeclaration.forEach((pd, index) => {
-            console.log('name', pd.getName());
-            const args = (): string[] => {
+        const namedType = m[key]
+        const { name } = namedType
+        console.log('className ==>', name);
+        const schemaFile = project.createSourceFile(`./test/${name}.ts`, `import { Field, Int, ObjectType, } from 'type-graphql';`);
+        if (isObjectType(namedType)) {
+            namedType as GraphQLObjectType;
+            const fields = namedType.getFields();
+            const fieldsKey = Object.keys(fields)
+            /**
+             *  添加类，同时添加装饰器函数
+             * @ObjectType()
+             * class Movie{
+             * }
+             */
+            const aClass = schemaFile.addClass({
+                name,
+                properties: fieldsKey.map(k => ({ name: k, }))
+            });
+            aClass.addDecorator({ name: 'ObjectType' }).setIsDecoratorFactory(true);
+            /**
+             *  为类添加属性
+             * class Movie{
+             *  id:string;
+             *  title:string;
+             * }
+             */
+            // 为属性 添加装饰器 example: @Field(type => Int)
+            aClass.getProperties().forEach((pd, index) => {
                 const key = pd.getName()
-                const args: string[] = [];
-                console.log('ttt', fields[key].astNode?.type);
-                if (fields[key].astNode?.type.kind === 'NamedType') {
-                    pd.setHasQuestionToken(true);
-                    const type = (fields[key].astNode?.type as NamedTypeNode).name.value
-                    args.push(`type => ${type}`)
-                    pd.setType(types2js(type))
-                } else if (fields[key].astNode?.type.kind === 'ListType') {
-                    // todo  list类型时，处理
-                } else if (fields[key].astNode?.type.kind === 'NonNullType') {
-                    const type = ((fields[key].astNode?.type as NonNullTypeNode).type as NamedTypeNode).name.value
-                    args.push(`type => ${type}`);
-                    pd.setType(types2js(type))
-                    args.push(' { nullable: true }')
+                const { type } = fields[key];
+                const typeToString = type.toString();
+                const args = (): string[] => {
+                    const args: string[] = [];
+                    args.push(`type => ${typeToString.replace('!', '')}`)
+                    pd.setType(graphql2jsType(typeToString))
+                    if (isNonNullType(type)) {
+                        args.push(' { nullable: true }')
+                    } else {
+                        pd.setHasQuestionToken(true);
+                    }
+                    return args;
                 }
-                console.log('args', args);
-                return args;
-            }
-            // 添加
-            pd.addDecorator({
-                name: 'Field',
-                arguments: args(),
+                // 添加
+                pd.addDecorator({
+                    name: 'Field',
+                    arguments: args(),
+                })
             })
-        })
-        project.save();
+        }
+
     })
-}
-
-
-const getType = () => {
-    // const types = Object.keys(m).filter((x) => !(x.startsWith('__') || excludeElement.indexOf(x) !== -1))
-
+    project.save();
 }
