@@ -19,21 +19,23 @@ class EggTypeGraphqlcli extends Command {
     help: flags.help({ char: "h", description: "帮助信息" }),
     // 生成模板
     template: flags.string({ char: "t", description: "生成egg ts通用模板" }),
-    graphql: flags.boolean({
+    graphql: flags.string({
       char: "g",
       description: "根据graphql schema生成typeGraphql代码",
     }),
   };
 
-  static args = [{ name: "template" }];
+  static args = [{ name: "template" }, { name: 'graphql' }];
 
   async run() {
     const { flags, args } = this.parse(EggTypeGraphqlcli);
     // copyTemplate();
     // parseTempalteConfig();
     if (flags.graphql) {
+      const filePath = path.join(process.cwd(), flags.graphql)
+      console.log('path.join(flags.graphql)', path.join(process.cwd(), flags.graphql))
       console.log('根据graphql schema生成typeGraphql代码')
-      genSchema();
+      genSchema(filePath);
     }
   }
 }

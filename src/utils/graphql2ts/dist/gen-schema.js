@@ -1,11 +1,12 @@
 "use strict";
 exports.__esModule = true;
-exports.genMuation = exports.genResolver = exports.genType = exports.genSchema = void 0;
+exports.genResolver = exports.genType = exports.genSchema = void 0;
 var load_1 = require("@graphql-tools/load");
 var graphql_1 = require("graphql");
 var graphql_file_loader_1 = require("@graphql-tools/graphql-file-loader");
 var path = require("path");
 var vars_1 = require("../common/vars");
+// import * as traverse from 'traverse';
 var ts_morph_1 = require("ts-morph");
 var excludeElement = ['Int', 'Float', 'Boolean', 'String'];
 var graphql2jsType = function (kind) {
@@ -25,7 +26,7 @@ var graphql2jsType = function (kind) {
             return kind.replace('!', '');
     }
 };
-exports.genSchema = function () {
+exports.genSchema = function (filePath) {
     var project = new ts_morph_1.Project();
     // 加载gql文件
     var graphQLSchema = load_1.loadSchemaSync(path.join(vars_1.ROOT, 'src', 'schema.gql'), {
@@ -37,23 +38,23 @@ exports.genSchema = function () {
         var namedType = m[key];
         var schemaFile;
         if (key === 'Query') {
-            exports.genResolver(project, namedType);
+            exports.genResolver(filePath, project, namedType);
             //todo 处理 query
         }
         else if (key === 'Mutation') {
-            exports.genResolver(project, namedType, 'mutation');
+            exports.genResolver(filePath, project, namedType, 'mutation');
             // todo 处理mutation
         }
         else {
-            exports.genType(project, namedType);
+            exports.genType(filePath, project, namedType);
         }
     });
     project.save();
 };
-exports.genType = function (project, namedType) {
+exports.genType = function (filePath, project, namedType) {
     var name = namedType.name;
     var needImport = "import { Field, Int, ObjectType,InputType,registerEnumType } from 'type-graphql';";
-    var schemaFile = project.createSourceFile("./schema/" + name + ".ts", needImport);
+    var schemaFile = project.createSourceFile(filePath + "/graphql/schema/" + name + ".ts", needImport);
     console.log('isObjectType(namedType)', graphql_1.isObjectType(namedType));
     if (graphql_1.isObjectType(namedType) || graphql_1.isInputObjectType(namedType)) {
         var decoratorName = graphql_1.isObjectType(namedType) ? 'ObjectType' : graphql_1.isInputObjectType(namedType) ? 'InputType' : '';
@@ -112,7 +113,7 @@ exports.genType = function (project, namedType) {
     }
 };
 // 生成 query语句
-exports.genResolver = function (project, namedType, resolverType) {
+exports.genResolver = function (filePath, project, namedType, resolverType) {
     if (resolverType === void 0) { resolverType = 'query'; }
     var fields = namedType.getFields();
     var fieldsKey = Object.keys(fields);
@@ -121,7 +122,7 @@ exports.genResolver = function (project, namedType, resolverType) {
         var fieldsType = fields[queryName].type;
         // query返回对象字符串
         var fieldsType2String = graphql2jsType(fields[queryName].type.toString());
-        var schemaFile = project.createSourceFile("./" + resolverType + "/" + queryName + ".ts", "import { Context } from 'egg';\n            import { Arg, Ctx, Query, Resolver ,Mutation } from 'type-graphql';\n            import { " + fieldsType2String + " } from '../schema/" + fieldsType2String + "';");
+        var schemaFile = project.createSourceFile(filePath + "/graphql/" + resolverType + "/" + queryName + ".ts", "import { Context } from 'egg';\n            import { Arg, Ctx, Query, Resolver ,Mutation } from 'type-graphql';\n            import { " + fieldsType2String + " } from '../schema/" + fieldsType2String + "';");
         // query 参数拼接
         var args = fields[queryName].args.map(function (arg) {
             var argsType = arg.type;
@@ -129,7 +130,4 @@ exports.genResolver = function (project, namedType, resolverType) {
         }).join('\n');
         schemaFile.addStatements("@Resolver(of => " + fieldsType2String + ")\n        export class " + queryName + "Resolver {\n          @" + (resolverType === 'query' ? 'Query' : 'Mutation') + "(returns => " + fieldsType2String + ", " + (graphql_1.isNonNullType(fieldsType) ? '' : '{ nullable: true }') + ")\n          async " + queryName.toLowerCase() + "(\n            @Ctx() ctx: Context,\n            " + args + "\n          ): Promise<" + fieldsType2String + " | null> {\n            // \u9700\u8981\u7F16\u5199\u7684\u903B\u8F91\n            return null;\n          }\n        }");
     });
-};
-// 生成 Muation 语句
-exports.genMuation = function () {
 };

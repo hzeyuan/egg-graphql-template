@@ -4,8 +4,8 @@ import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import * as path from 'path';
 import { isNonNullTypeNode, TypeMap, UrlLoader } from 'graphql-tools';
 import { ROOT } from '../common/vars';
-import * as traverse from 'traverse';
-import { FunctionDeclaration, Project, SourceFile } from "ts-morph";
+// import * as traverse from 'traverse';
+import { Project, SourceFile } from "ts-morph";
 const excludeElement = ['Int', 'Float', 'Boolean', 'String'];
 
 const graphql2jsType = (kind: string) => {
@@ -24,7 +24,7 @@ const graphql2jsType = (kind: string) => {
 
 
 
-export const genSchema = () => {
+export const genSchema = (filePath: string) => {
     const project = new Project();
     // 加载gql文件
     const graphQLSchema: GraphQLSchema = loadSchemaSync(path.join(ROOT, 'src', 'schema.gql'), {  // load from a single schema file
@@ -36,24 +36,24 @@ export const genSchema = () => {
         const namedType = m[key]
         let schemaFile: SourceFile;
         if (key === 'Query') {
-            genResolver(project, namedType)
+            genResolver(filePath, project, namedType)
             //todo 处理 query
         } else if (key === 'Mutation') {
-            genResolver(project, namedType, 'mutation')
+            genResolver(filePath, project, namedType, 'mutation')
             // todo 处理mutation
         }
         else {
-            genType(project, namedType)
+            genType(filePath, project, namedType)
         }
     })
     project.save();
 }
 
 
-export const genType = (project: Project, namedType: GraphQLNamedType) => {
+export const genType = (filePath: string, project: Project, namedType: GraphQLNamedType) => {
     const { name } = namedType;
     const needImport = `import { Field, Int, ObjectType,InputType,registerEnumType } from 'type-graphql';`
-    const schemaFile = project.createSourceFile(`./schema/${name}.ts`, needImport);
+    const schemaFile = project.createSourceFile(`${filePath}/graphql/schema/${name}.ts`, needImport);
     console.log('isObjectType(namedType)', isObjectType(namedType));
     if (isObjectType(namedType) || isInputObjectType(namedType)) {
         const decoratorName = isObjectType(namedType) ? 'ObjectType' : isInputObjectType(namedType) ? 'InputType' : ''
@@ -110,7 +110,7 @@ export const genType = (project: Project, namedType: GraphQLNamedType) => {
 }
 
 // 生成 query语句
-export const genResolver = (project: Project, namedType: GraphQLNamedType, resolverType = 'query') => {
+export const genResolver = (filePath: string, project: Project, namedType: GraphQLNamedType, resolverType = 'query') => {
     const fields = (namedType as GraphQLObjectType).getFields()
     const fieldsKey = Object.keys(fields)
     fieldsKey.forEach(queryName => {
@@ -118,7 +118,7 @@ export const genResolver = (project: Project, namedType: GraphQLNamedType, resol
         const fieldsType = fields[queryName].type
         // query返回对象字符串
         const fieldsType2String = graphql2jsType(fields[queryName].type.toString())
-        const schemaFile = project.createSourceFile(`./${resolverType}/${queryName}.ts`,
+        const schemaFile = project.createSourceFile(`${filePath}/graphql/${resolverType}/${queryName}.ts`,
             `import { Context } from 'egg';
             import { Arg, Ctx, Query, Resolver ,Mutation } from 'type-graphql';
             import { ${fieldsType2String} } from '../schema/${fieldsType2String}';`);
@@ -139,10 +139,4 @@ export const genResolver = (project: Project, namedType: GraphQLNamedType, resol
           }
         }`)
     })
-}
-
-
-// 生成 Muation 语句
-export const genMuation = () => {
-
 }
