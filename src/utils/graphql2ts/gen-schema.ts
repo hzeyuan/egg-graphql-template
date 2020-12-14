@@ -6,6 +6,7 @@ import { isNonNullTypeNode, TypeMap, UrlLoader } from 'graphql-tools';
 import { ROOT } from '../common/vars';
 // import * as traverse from 'traverse';
 import { Project, SourceFile } from "ts-morph";
+import * as prettier from "prettier";
 const excludeElement = ['Int', 'Float', 'Boolean', 'String'];
 
 const graphql2jsType = (kind: string) => {
@@ -25,7 +26,7 @@ const graphql2jsType = (kind: string) => {
 
 
 export const genSchema = (filePath: string) => {
-    const project = new Project();
+    const project = new Project({ tsConfigFilePath: "tsconfig.json" });
     // 加载gql文件
     const graphQLSchema: GraphQLSchema = loadSchemaSync(path.join(ROOT, 'src', 'schema.gql'), {  // load from a single schema file
         loaders: [new GraphQLFileLoader()]
@@ -101,11 +102,14 @@ export const genType = (filePath: string, project: Project, namedType: GraphQLNa
             })
         })
     } else if (isEnumType(namedType)) {
-        console.log('enum类型')
         schemaFile.addEnum({
             name, members: namedType.getValues()
         }).setIsExported(true);
         schemaFile.addStatements(`registerEnumType(${name},{name:'${name}'})`)
+        schemaFile.fixMissingImports()
+            .organizeImports()
+            .fixUnusedIdentifiers()
+            .formatText();
     }
 }
 
@@ -138,5 +142,8 @@ export const genResolver = (filePath: string, project: Project, namedType: Graph
             return null;
           }
         }`)
+        schemaFile.fixMissingImports()
+            .organizeImports()
+            .formatText();
     })
 }

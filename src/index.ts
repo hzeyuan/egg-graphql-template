@@ -33,7 +33,6 @@ class EggTypeGraphqlcli extends Command {
     // parseTempalteConfig();
     if (flags.graphql) {
       const filePath = path.join(process.cwd(), flags.graphql)
-      console.log('path.join(flags.graphql)', path.join(process.cwd(), flags.graphql))
       console.log('根据graphql schema生成typeGraphql代码')
       genSchema(filePath);
     }

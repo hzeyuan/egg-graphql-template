@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType,InputType,registerEnumType } from 'type-graphql';
+import { registerEnumType } from 'type-graphql';
 
 export enum SortByEnum {
     CREATEDAT_ASC = "CREATEDAT_ASC",
@@ -6,4 +6,4 @@ export enum SortByEnum {
     UPDATEDAT_ASC = "UPDATEDAT_ASC",
     UPDATEDAT_DESC = "UPDATEDAT_DESC"
 }
-registerEnumType(SortByEnum,{name:'SortByEnum'})
+registerEnumType(SortByEnum, { name: 'SortByEnum' })

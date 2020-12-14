@@ -27,7 +27,7 @@ var graphql2jsType = function (kind) {
     }
 };
 exports.genSchema = function (filePath) {
-    var project = new ts_morph_1.Project();
+    var project = new ts_morph_1.Project({ tsConfigFilePath: "tsconfig.json" });
     // 加载gql文件
     var graphQLSchema = load_1.loadSchemaSync(path.join(vars_1.ROOT, 'src', 'schema.gql'), {
         loaders: [new graphql_file_loader_1.GraphQLFileLoader()]
@@ -104,12 +104,15 @@ exports.genType = function (filePath, project, namedType) {
         });
     }
     else if (graphql_1.isEnumType(namedType)) {
-        console.log('enum类型');
         schemaFile.addEnum({
             name: name,
             members: namedType.getValues()
         }).setIsExported(true);
         schemaFile.addStatements("registerEnumType(" + name + ",{name:'" + name + "'})");
+        schemaFile.fixMissingImports()
+            .organizeImports()
+            .fixUnusedIdentifiers()
+            .formatText();
     }
 };
 // 生成 query语句
@@ -129,5 +132,8 @@ exports.genResolver = function (filePath, project, namedType, resolverType) {
             return "@Arg('" + arg.name + "') " + arg.name + (graphql_1.isNonNullType(argsType) ? '' : '?') + ":" + graphql2jsType(argsType.toString()) + ",";
         }).join('\n');
         schemaFile.addStatements("@Resolver(of => " + fieldsType2String + ")\n        export class " + queryName + "Resolver {\n          @" + (resolverType === 'query' ? 'Query' : 'Mutation') + "(returns => " + fieldsType2String + ", " + (graphql_1.isNonNullType(fieldsType) ? '' : '{ nullable: true }') + ")\n          async " + queryName.toLowerCase() + "(\n            @Ctx() ctx: Context,\n            " + args + "\n          ): Promise<" + fieldsType2String + " | null> {\n            // \u9700\u8981\u7F16\u5199\u7684\u903B\u8F91\n            return null;\n          }\n        }");
+        schemaFile.fixMissingImports()
+            .organizeImports()
+            .formatText();
     });
 };

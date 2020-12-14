@@ -9,7 +9,6 @@ import * as prettier from "prettier";
 import { ROOT, TEMPLATE_FILE, DIST_ROUTER_FILE, TMP_ROUTER_FILE, DIST_CONTROLLER_FOLDER, TMP_SERVICE_FOLDER, DIST_SERVICE_FOLDER, DIST_TYPES_CONTROLLER_FOLDER, DIST_TYPES_SERVICE_FOLDER, TMP_TYPES_CONTROLLER_FOLDER, TMP_TYPES_SERVICE_FOLDER, TMP_CONTROLLER_FOLDER } from './common/vars';
 
 
-
 // 首字母大写
 const firstUpperCase = (str: string) => {
   return str.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase());

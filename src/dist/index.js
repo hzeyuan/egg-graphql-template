@@ -76,7 +76,6 @@ var EggTypeGraphqlcli = /** @class */ (function (_super) {
                 // parseTempalteConfig();
                 if (flags.graphql) {
                     filePath = path.join(process.cwd(), flags.graphql);
-                    console.log('path.join(flags.graphql)', path.join(process.cwd(), flags.graphql));
                     console.log('根据graphql schema生成typeGraphql代码');
                     gen_schema_1.genSchema(filePath);
                 }
