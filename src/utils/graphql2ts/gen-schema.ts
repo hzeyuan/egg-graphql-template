@@ -9,10 +9,6 @@ import * as ora from 'ora';
 import { Project } from "ts-morph";
 import { ThreadSpinner } from "thread-spin"
 
-const spinner = new ThreadSpinner({
-    text: "threaded spinner",
-    spinner: "dots",
-});
 
 
 const graphql2jsType = (kind: string) => {
@@ -31,34 +27,33 @@ const graphql2jsType = (kind: string) => {
 
 
 
-export const genSchema = (filePath: string) => {
-
+export const genSchema = async (filePath: string) => {
+    const spinner = new ThreadSpinner({
+        text: "threaded spinner",
+        spinner: "dots",
+    });
     const project = new Project({ tsConfigFilePath: "tsconfig.json" });
     const graphQLSchema: GraphQLSchema = loadSchemaSync(path.join(ROOT, 'src', 'schema.gql'), {  // load from a single schema file
         loaders: [new GraphQLFileLoader()]
     });
     const m: TypeMap = graphQLSchema.getTypeMap();
     const typeKeys = Object.keys(m).filter((x) => !(x.startsWith('__') || ['Int', 'Float', 'Boolean', 'String'].indexOf(x) !== -1))
-    spinner.start('生成代码').then(() => {
-        typeKeys.forEach((key) => {
-            const namedType = m[key]
-            if (key === 'Query') {
-                genResolver(filePath, project, namedType)
-            } else if (key === 'Mutation') {
-                genResolver(filePath, project, namedType, 'mutation')
-            }
-            else {
-                genType(filePath, project, namedType)
-            }
-        })
-    }).then(() => {
-        project.save()
-        return spinner.succeed();
-    }).then(() => ThreadSpinner.shutdown())
-
+    await spinner.start('生成代码');
+    typeKeys.forEach((key) => {
+        const namedType = m[key]
+        if (key === 'Query') {
+            genResolver(filePath, project, namedType)
+        } else if (key === 'Mutation') {
+            genResolver(filePath, project, namedType, 'mutation')
+        }
+        else {
+            genType(filePath, project, namedType)
+        }
+    })
+    project.save();
+    await spinner.succeed();
+    await ThreadSpinner.shutdown();
 }
-
-
 // 生成类型定义
 export const genType = (filePath: string, project: Project, namedType: GraphQLNamedType) => {
     const { name } = namedType;

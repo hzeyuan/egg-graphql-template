@@ -72,12 +72,14 @@ var EggTypeGraphqlcli = /** @class */ (function (_super) {
             var _a, flags, args, filePath;
             return __generator(this, function (_b) {
                 _a = this.parse(EggTypeGraphqlcli), flags = _a.flags, args = _a.args;
-                // copyTemplate();
                 // parseTempalteConfig();
                 if (flags.graphql) {
                     filePath = path.join(process.cwd(), flags.graphql);
                     // console.log('根据graphql schema生成typeGraphql代码')
                     gen_schema_1.genSchema(filePath);
+                }
+                else if (flags.template === 'simple') {
+                    copyTemplate();
                 }
                 return [2 /*return*/];
             });

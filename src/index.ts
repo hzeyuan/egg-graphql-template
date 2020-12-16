@@ -1,5 +1,5 @@
 import { Command, flags } from "@oclif/command";
-import { copyDir, addFileInDir } from "./utils/copyer";
+import { copyDir } from "./utils/copyer";
 import { parseTempalteConfig } from "./utils/parse";
 import { genSchema } from './utils/graphql2ts/gen-schema'
 import path = require("path");
@@ -29,12 +29,14 @@ class EggTypeGraphqlcli extends Command {
 
   async run() {
     const { flags, args } = this.parse(EggTypeGraphqlcli);
-    // copyTemplate();
+
     // parseTempalteConfig();
     if (flags.graphql) {
       const filePath = path.join(process.cwd(), flags.graphql)
       // console.log('根据graphql schema生成typeGraphql代码')
       genSchema(filePath);
+    } else if (flags.template === 'simple') {
+      copyTemplate();
     }
   }
 }
