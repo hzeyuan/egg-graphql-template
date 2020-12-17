@@ -7,7 +7,7 @@
         "url": "/graphql"
       }
     ],
-    "simple": [
+    "rest": [
       {
         "methods": "get",
         "name": "sample",

@@ -34,8 +34,6 @@ export const copyDir = (
   if (!fs.existsSync(tarDirpath))
     fs.mkdir(path.join(tarDirpath), (err: any) => { });
   const files: string[] = fs.readdirSync(srcPath);
-  // fs.readdir(srcPath, (err: NodeJS.ErrnoException | null, files: string[]) => {
-  //   if (err !== null) console.error(err);
   files.forEach(function (filename: string) {
     let filedir = path.join(srcPath, filename);
     let filterFlag = filter.some((item) => item === filename);
@@ -52,17 +50,6 @@ export const copyDir = (
         fs.mkdir(tarFiledir, (err: NodeJS.ErrnoException | null) => { });
         copyDir(filedir, tarFiledir, filter); // 递归
       }
-      // fs.stat(
-      //   filedir,
-      //   function (
-      //     errs: NodeJS.ErrnoException | null,
-      //     stats: { isFile: () => any }
-      //   ) {
-
-
-      //   }
-      // );
     }
   });
-  // });
 };

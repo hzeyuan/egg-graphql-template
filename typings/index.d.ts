@@ -4,3 +4,9 @@ export interface Router {
     url: string;
     methods: string;
 }
+
+export interface templateConfig {
+    router: {
+        rest: Router[],
+    },
+}

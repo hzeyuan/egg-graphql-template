@@ -2,12 +2,11 @@ import { loadSchemaSync } from '@graphql-tools/load';
 import { GraphQLObjectType, GraphQLSchema, isObjectType, isNonNullType, isInputObjectType, GraphQLInputObjectType, isEnumType, GraphQLNamedType, } from 'graphql';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import * as path from 'path';
-import { TypeMap, UrlLoader } from 'graphql-tools';
-import { ROOT } from '../common/vars';
-import * as ora from 'ora';
+import { TypeMap } from 'graphql-tools';
+import { ROOT } from '../utils/common/vars';
 // import * as traverse from 'traverse';
-import { Project } from "ts-morph";
 import { ThreadSpinner } from "thread-spin"
+import { eggProject, spinner } from '.';
 
 
 
@@ -25,14 +24,8 @@ const graphql2jsType = (kind: string) => {
 }
 
 
-
-
 export const genSchema = async (filePath: string) => {
-    const spinner = new ThreadSpinner({
-        text: "threaded spinner",
-        spinner: "dots",
-    });
-    const project = new Project({ tsConfigFilePath: "tsconfig.json" });
+
     const graphQLSchema: GraphQLSchema = loadSchemaSync(path.join(ROOT, 'src', 'schema.gql'), {  // load from a single schema file
         loaders: [new GraphQLFileLoader()]
     });
@@ -41,23 +34,23 @@ export const genSchema = async (filePath: string) => {
     await spinner.start('生成代码');
     typeKeys.forEach((key) => {
         const namedType = m[key]
-        if (key === 'Query') {
-            genResolver(filePath, project, namedType)
-        } else if (key === 'Mutation') {
-            genResolver(filePath, project, namedType, 'mutation')
-        }
-        else {
-            genType(filePath, project, namedType)
+        switch (key) {
+            case 'Query': case 'Mutation':
+                genResolver(filePath, namedType, key)
+                break;
+            default:
+                genType(filePath, namedType)
+                break;
         }
     })
-    project.save();
+    eggProject.save();
     await spinner.succeed();
     await ThreadSpinner.shutdown();
 }
 // 生成类型定义
-export const genType = (filePath: string, project: Project, namedType: GraphQLNamedType) => {
+export const genType = (filePath: string, namedType: GraphQLNamedType) => {
     const { name } = namedType;
-    const schemaFile = project.createSourceFile(`${filePath}/graphql/schema/${name}.ts`, `import { Field, Int, ObjectType,InputType,registerEnumType } from 'type-graphql';`);
+    const schemaFile = eggProject.createSourceFile(`${filePath}/graphql/schema/${name}.ts`, `import { Field, Int, ObjectType,InputType,registerEnumType } from 'type-graphql';`);
     if (isObjectType(namedType) || isInputObjectType(namedType)) {
         const decoratorName = isObjectType(namedType) ? 'ObjectType' : isInputObjectType(namedType) ? 'InputType' : ''
         namedType as GraphQLObjectType | GraphQLInputObjectType;
@@ -116,7 +109,7 @@ export const genType = (filePath: string, project: Project, namedType: GraphQLNa
 }
 
 // 生成 query语句
-export const genResolver = (filePath: string, project: Project, namedType: GraphQLNamedType, resolverType = 'query') => {
+export const genResolver = (filePath: string, namedType: GraphQLNamedType, resolverType = 'Query') => {
     const fields = (namedType as GraphQLObjectType).getFields()
     const fieldsKey = Object.keys(fields)
     fieldsKey.forEach(queryName => {
@@ -124,7 +117,7 @@ export const genResolver = (filePath: string, project: Project, namedType: Graph
         const fieldsType = fields[queryName].type
         // query返回对象字符串
         const fieldsType2String = graphql2jsType(fields[queryName].type.toString())
-        const schemaFile = project.createSourceFile(`${filePath}/graphql/${resolverType}/${queryName}.ts`,
+        const schemaFile = eggProject.createSourceFile(`${filePath}/graphql/${resolverType.toLowerCase()}/${queryName}.ts`,
             `import { Context } from 'egg';
             import { Arg, Ctx, Query, Resolver ,Mutation } from 'type-graphql';`);
         // query 参数拼接
