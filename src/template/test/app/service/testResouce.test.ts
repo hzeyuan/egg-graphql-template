@@ -9,38 +9,14 @@ describe('test/app/service/testResource.test.js', () => {
         ctx = app.mockContext();
     });
 
-    describe('create()', () => {
-        // it('should create failed by accesstoken error', async () => {
-        //   try {
-        //     await ctx.service.topics.create({
-        //       accesstoken: 'hello',
-        //       title: 'title',
-        //       content: 'content',
-        //     });
-        //   } catch (err) {
-        //     assert(err.status === 401);
-        //     assert(err.message === '错误的accessToken');
-        //     return;
-        //   }
-        //   throw 'should not run here';
-        // });
+    describe('service ===> create()', () => {
 
         it('should create success', async () => {
             // 不影响 CNode 的正常运行，我们可以将对 CNode 的调用按照接口约定模拟掉
             // app.mockHttpclient 方法可以便捷的对应用发起的 http 请求进行模拟
-            app.mockHttpclient(`${ctx.service.topics.root}/topics`, 'POST', {
-                data: {
-                    success: true,
-                    topic_id: '5433d5e4e737cbe96dcef312',
-                },
-            });
-
-            const id = await ctx.service.topics.create({
-                accesstoken: 'hello',
-                title: 'title',
-                content: 'content',
-            });
-            assert(id === '5433d5e4e737cbe96dcef312');
+            app.mockHttpclient(`${ctx.service.testResource.index}`, 'GET', 'index');
+            const res = await ctx.service.testResource.index({});
+            assert(JSON.stringify(res) === '{}');
         });
     });
 });

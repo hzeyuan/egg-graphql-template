@@ -33,7 +33,6 @@ export default class TestResourceController extends Controller {
         ctx.validate({})
         // 组装参数
         const { id } = ctx.params
-        console.log('update', ctx.params);
         const payload = ctx.request.body || {}
         // 调用 Service 进行业务处理
         await service.testResource.update(id, payload)
