@@ -24,7 +24,10 @@
   },
   "dependencies": {
     "egg": "^2.29.1",
-    "egg-scripts": "^2.13.0"
+    "egg-apollo-server": "^0.3.0",
+    "egg-cors": "^2.2.3",
+    "egg-scripts": "^2.13.0",
+    "egg-validate": "^2.0.2"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "1.19.4",
