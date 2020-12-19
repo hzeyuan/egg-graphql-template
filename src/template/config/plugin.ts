@@ -1,15 +1,6 @@
 import { EggPlugin } from 'egg';
 
 const plugin: EggPlugin = {
-  // static: true,
-  // nunjucks: {
-  //   enable: true,
-  //   package: 'egg-view-nunjucks',
-  // },
-  // 'apollo-server': {
-  //   enable: true,
-  //   package: 'egg-apollo-server',
-  // },
   valiate: {
     enable: true,
     package: 'egg-validate',
@@ -18,10 +9,10 @@ const plugin: EggPlugin = {
     enable: true,
     package: 'egg-cors',
   },
-  // graphql: {
-  //   enable: true,
-  //   package: 'egg-graphql',
-  // },
+  'apollo-server': {
+    enable: true,
+    package: 'egg-apollo-server',
+  },
 };
 
 export default plugin;

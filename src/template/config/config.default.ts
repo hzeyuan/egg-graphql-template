@@ -8,7 +8,7 @@ export default (appInfo: EggAppInfo) => {
 
   config.graphql = graphqlConf;
 
-  config.middleware = [ 'errorHandler' ];
+  config.middleware = [ 'graphql', 'errorHandler' ];
 
   config.security = {
     // domainWhiteList: [ 'http://127.0.0.1:8000' ],
@@ -17,7 +17,6 @@ export default (appInfo: EggAppInfo) => {
     },
   };
   config.proxy = true;
-
   config.cors = {
     credentials: true,
     origin: '*',

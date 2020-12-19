@@ -1,4 +1,3 @@
-import 'reflect-metadata'; // 必须第一个引入
 
 import { Application } from 'egg';
 
@@ -21,7 +20,6 @@ class AppBootHook {
     // 可以用来加载应用自定义的文件，启动自定义的服务
 
     // 例如：创建自定义应用的示例
-    // await this.app.getGraphQL().init();
   }
 
   async willReady() {
