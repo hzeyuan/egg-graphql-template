@@ -26,6 +26,8 @@ ENV EGG_SERVER_ENV=prod
 
 # TODO egg.js 生产环境需要 npm run tsc 编译为 js 后才能运行，但是 type-graphql 编译后反射 schema 会异常，因此这里暂时先用开发环境启动
 RUN npm run tsc
-CMD [ "npm", "start" ]
 
 # CMD [ "npm", "run", "dev" ]
+
+CMD [ "npm", "start" ]
+EXPOSE 7001

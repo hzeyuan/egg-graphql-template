@@ -8,7 +8,7 @@
     "declarations": true
   },
   "scripts": {
-    "start": "egg-scripts start --daemon --title=egg-server-template",
+    "start": "egg-scripts start  --title=egg-server-template",
     "stop": "egg-scripts stop --title=egg-server-template",
     "dev": "egg-bin dev",
     "debug": "egg-bin debug",

@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Pod","metadata":{"annotations":{},"name":"egg-template","namespace":"template"},"spec":{"containers":[{"image":"template","imagePullPolicy":"Never","name":"egg-template-demo","ports":[{"containerPort":7001,"name":"web","protocol":"TCP"}],"resources":{"limits":{"memory":"1000Mi"},"requests":{"memory":"500Mi"}}}]}}
+  creationTimestamp: "2020-12-21T05:30:07Z"
+  name: egg-template
+  namespace: template
+  resourceVersion: "1852201"
+  selfLink: /api/v1/namespaces/template/pods/egg-template
+  uid: 1d760ef9-5cd8-470a-8a59-87c775f83ae4
+spec:
+  containers:
+  - image: template
+    imagePullPolicy: Never
+    name: egg-template-demo
+    ports:
+    - containerPort: 7001
+      name: web
+      protocol: TCP
+    resources:
+      limits:
+        memory: 1000Mi
+      requests:
+        memory: 500Mi
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: default-token-wks7w
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: docker-desktop
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: default-token-wks7w
+    secret:
+      defaultMode: 420
+      secretName: default-token-wks7w
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2020-12-21T05:30:07Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2020-12-21T05:33:33Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2020-12-21T05:33:33Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2020-12-21T05:30:07Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://44dfc6d2423e606984df91fda69db910b652e48a012b94e43d2e9a5e1e77b941
+    image: template:latest
+    imageID: docker://sha256:935e14d994cb6ed6427138c2860221d87d678ee14ebec2ff5ec16478a7457c04
+    lastState: {}
+    name: egg-template-demo
+    ready: true
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2020-12-21T05:33:32Z"
+  hostIP: 192.168.65.3
+  phase: Running
+  podIP: 10.1.0.89
+  podIPs:
+  - ip: 10.1.0.89
+  qosClass: Burstable
+  startTime: "2020-12-21T05:30:07Z"
