@@ -1,17 +1,22 @@
-FROM node:14.13.1-alpine3.11
+FROM node:12.20.0-alpine3.11
 
-# RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
-#     apk add --update ca-certificates git openssh-client && \
-#     rm -rf /var/cache/apk/* /tmp/*
+RUN apk add --no-cache bash \
+    supervisor=4.1.0-r0 \
+    nginx=1.16.1-r6 && \
+    rm -rf /var/cache/apk/* && \
+    mkdir -p /var/log/supervisor && \
+    mkdir -p /etc/nginx/sites-enabled/ && \
+    mkdir -p /var/www/html/
 
-# Configure Git to download private modules
-# RUN mkdir -p /root/.ssh
-# COPY .gitconfig /root/.gitconfig
-# COPY id_rsa /root/.ssh/id_rsa
-# RUN git config --global url."git@code.aliyun.com:".insteadOf "https://code.aliyun.com/" && \
-#     echo "ssh -l git -o StrictHostKeyChecking=no \"\$@\"" > /root/ssh.sh && \
-#     chmod +x /root/ssh.sh
-# ENV GIT_SSH=/root/ssh.sh
+
+
+ADD deploy/nginx/supervisord.conf /etc/supervisord.conf
+ADD deploy/nginx/nginx.conf /etc/nginx/nginx.conf
+ADD deploy/nginx/sites-enabled/default.conf /etc/nginx/sites-enabled/default.conf
+
+ADD deploy/scripts/start.sh /start.sh
+
+
 
 WORKDIR /opt
 
@@ -26,8 +31,10 @@ ENV EGG_SERVER_ENV=prod
 
 # TODO egg.js 生产环境需要 npm run tsc 编译为 js 后才能运行，但是 type-graphql 编译后反射 schema 会异常，因此这里暂时先用开发环境启动
 RUN npm run tsc
+EXPOSE 80
 
 # CMD [ "npm", "run", "dev" ]
 
-CMD [ "npm", "start" ]
-EXPOSE 7001
+
+CMD ["/bin/bash","/start.sh"]
+
